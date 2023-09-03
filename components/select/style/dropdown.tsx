@@ -124,7 +124,7 @@ const genSingleStyle: GenerateStyle<SelectToken> = (token) => {
             },
 
             [`&-selected:not(${selectItemCls}-option-disabled)`]: {
-              color: token.colorText,
+              color: token.controlItemTextActive,
               fontWeight: token.fontWeightStrong,
               backgroundColor: token.controlItemBgActive,
 

@@ -189,6 +189,14 @@ export interface AliasToken extends MapToken {
   controlOutlineWidth: number;
 
   /**
+   * @nameZH 活动控制组件项的文本颜色
+   * @nameEN Text color of active control component item
+   * @desc 控制活动控制组件项的文本颜色。
+   * @descEN Control the text color of active control component item.
+   */
+  controlItemTextActive: string; // Note. It also is a color
+
+  /**
    * @nameZH 控制组件项在鼠标悬浮时的背景颜色
    * @nameEN Background color of control component item when hovering
    * @desc 控制组件项在鼠标悬浮时的背景颜色。
