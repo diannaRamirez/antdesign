@@ -11,6 +11,7 @@ import { ExpandableConfig, GetRowKey } from 'rc-table/lib/interface';
 import type { Breakpoint } from '../_util/responsiveObserver';
 import type { AnyObject } from '../_util/type';
 import type { CheckboxProps } from '../checkbox';
+import type { DropdownProps } from '../dropdown';
 import type { PaginationProps } from '../pagination';
 import type { TooltipProps } from '../tooltip';
 import type { INTERNAL_SELECTION_ITEM } from './hooks/useSelection';
@@ -61,7 +62,7 @@ export interface TableLocale {
 export type SortOrder = 'descend' | 'ascend' | null;
 
 const TableActions = ['paginate', 'sort', 'filter'] as const;
-export type TableAction = typeof TableActions[number];
+export type TableAction = (typeof TableActions)[number];
 
 export type CompareFn<T> = (a: T, b: T, sortOrder?: SortOrder) => number;
 
@@ -130,7 +131,12 @@ export interface ColumnType<RecordType> extends Omit<RcColumnType<RecordType>, '
   // Filter
   filtered?: boolean;
   filters?: ColumnFilterItem[];
-  filterDropdown?: React.ReactNode | ((props: FilterDropdownProps) => React.ReactNode);
+  filterDropdown?:
+    | React.ReactElement<DropdownProps>
+    | ((
+        props: FilterDropdownProps,
+        originalNode: React.ReactElement<DropdownProps>,
+      ) => React.ReactElement<DropdownProps>);
   filterMultiple?: boolean;
   filteredValue?: FilterValue | null;
   defaultFilteredValue?: FilterValue | null;
