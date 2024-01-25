@@ -280,7 +280,7 @@ const InternalSelect = <
     <RcSelect<ValueType, OptionType>
       ref={ref}
       virtual={virtual}
-      showSearch={select?.showSearch}
+      {...select}
       {...selectProps}
       style={{ ...select?.style, ...style }}
       dropdownMatchSelectWidth={mergedPopupMatchSelectWidth}
