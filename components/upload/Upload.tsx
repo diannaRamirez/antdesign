@@ -422,6 +422,7 @@ const InternalUpload: React.ForwardRefRenderFunction<UploadRef, UploadProps> = (
     cssVarCls,
     ctxUpload?.className,
     {
+      [`${prefixCls}-disabled`]: mergedDisabled,
       [`${prefixCls}-rtl`]: direction === 'rtl',
       [`${prefixCls}-picture-card-wrapper`]: listType === 'picture-card',
       [`${prefixCls}-picture-circle-wrapper`]: listType === 'picture-circle',
@@ -434,7 +435,6 @@ const InternalUpload: React.ForwardRefRenderFunction<UploadRef, UploadProps> = (
     const dragCls = classNames(hashId, prefixCls, `${prefixCls}-drag`, {
       [`${prefixCls}-drag-uploading`]: mergedFileList.some((file) => file.status === 'uploading'),
       [`${prefixCls}-drag-hover`]: dragState === 'dragover',
-      [`${prefixCls}-disabled`]: mergedDisabled,
       [`${prefixCls}-rtl`]: direction === 'rtl',
     });
 
@@ -456,12 +456,8 @@ const InternalUpload: React.ForwardRefRenderFunction<UploadRef, UploadProps> = (
     );
   }
 
-  const uploadButtonCls = classNames(prefixCls, `${prefixCls}-select`, {
-    [`${prefixCls}-disabled`]: mergedDisabled,
-  });
-
   const renderUploadButton = (uploadButtonStyle?: React.CSSProperties) => (
-    <div className={uploadButtonCls} style={uploadButtonStyle}>
+    <div className={`${prefixCls}-select`} style={uploadButtonStyle}>
       <RcUpload {...rcUploadProps} ref={upload} />
     </div>
   );

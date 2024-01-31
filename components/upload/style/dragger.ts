@@ -7,6 +7,10 @@ const genDraggerStyle: GenerateStyle<UploadToken> = (token) => {
 
   return {
     [`${componentCls}-wrapper`]: {
+      [`&:not(${componentCls}-disabled) ${componentCls}-drag:hover`]: {
+        borderColor: token.colorPrimaryHover,
+      },
+
       [`${componentCls}-drag`]: {
         position: 'relative',
         width: '100%',
@@ -37,13 +41,6 @@ const genDraggerStyle: GenerateStyle<UploadToken> = (token) => {
         [`${componentCls}-drag-container`]: {
           display: 'table-cell',
           verticalAlign: 'middle',
-        },
-
-        [`
-          &:not(${componentCls}-disabled):hover,
-          &-hover:not(${componentCls}-disabled)
-        `]: {
-          borderColor: token.colorPrimaryHover,
         },
 
         [`p${componentCls}-drag-icon`]: {

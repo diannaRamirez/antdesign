@@ -110,7 +110,11 @@ const genPictureCardStyle: GenerateStyle<UploadToken> = (token) => {
       display: 'inline-block',
       width: '100%',
 
-      [`${componentCls}${componentCls}-select`]: {
+      [`&:not(${componentCls}-disabled) ${componentCls}-select:hover`]: {
+        borderColor: token.colorPrimary,
+      },
+
+      [`${componentCls}-select`]: {
         width: uploadPictureCardSize,
         height: uploadPictureCardSize,
         marginInlineEnd: token.marginXS,
@@ -129,10 +133,6 @@ const genPictureCardStyle: GenerateStyle<UploadToken> = (token) => {
           justifyContent: 'center',
           height: '100%',
           textAlign: 'center',
-        },
-
-        [`&:not(${componentCls}-disabled):hover`]: {
-          borderColor: token.colorPrimary,
         },
       },
 
@@ -244,7 +244,7 @@ const genPictureCardStyle: GenerateStyle<UploadToken> = (token) => {
       },
     },
     [`${componentCls}-wrapper${componentCls}-picture-circle-wrapper`]: {
-      [`${componentCls}${componentCls}-select`]: {
+      [`${componentCls}-select`]: {
         borderRadius: '50%',
       },
     },
