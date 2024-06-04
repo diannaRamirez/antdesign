@@ -81,6 +81,7 @@ export interface BlockProps<C extends keyof JSX.IntrinsicElements = keyof JSX.In
   strong?: boolean;
   keyboard?: boolean;
   italic?: boolean;
+  size?: 'default' | 'small' | 'large' | 'extraLarge';
 }
 
 function wrapperDecorations(
@@ -123,6 +124,7 @@ const Base = React.forwardRef<HTMLElement, BlockProps>((props, ref) => {
     copyable,
     component,
     title,
+    size,
     ...restProps
   } = props;
   const { getPrefixCls, direction } = React.useContext(ConfigContext);
@@ -475,6 +477,9 @@ const Base = React.forwardRef<HTMLElement, BlockProps>((props, ref) => {
                 [`${prefixCls}-single-line`]: mergedEnableEllipsis && rows === 1 && !expanded,
                 [`${prefixCls}-ellipsis-single-line`]: cssTextOverflow,
                 [`${prefixCls}-ellipsis-multiple-line`]: cssLineClamp,
+                [`${prefixCls}-size-small`]: size === 'small',
+                [`${prefixCls}-size-large`]: size === 'large',
+                [`${prefixCls}-size-extra-large`]: size === 'extraLarge',
               },
               className,
             )}
