@@ -2942,4 +2942,130 @@ describe('Table.filter', () => {
     fireEvent.click(container.querySelector('.ant-dropdown-trigger')!);
     expect(handleChange).not.toHaveBeenCalled();
   });
+
+  describe('filter should be keyboard accessible', () => {
+    it('should move focus on first focusable element on open', async () => {
+      const { container } = render(
+        createTable({
+          columns: [
+            {
+              ...column,
+            },
+          ],
+        }),
+      );
+      act(() => {
+        fireEvent.click(container.querySelector('.ant-dropdown-trigger')!);
+      });
+      expect(container.querySelector('.ant-dropdown-open')).toBeTruthy();
+      await waitFor(() => expect(container.querySelector('.ant-dropdown-menu')).toHaveFocus());
+    });
+
+    it('should open dropdown on Enter', async () => {
+      const { container } = render(
+        createTable({
+          columns: [
+            {
+              ...column,
+            },
+          ],
+        }),
+      );
+      const triggerElement = container.querySelector('.ant-dropdown-trigger')!;
+      act(() => {
+        fireEvent.keyDown(triggerElement, { key: 'Enter', code: 'Enter' });
+      });
+      expect(container.querySelector('.ant-dropdown-open')).toBeTruthy();
+      await waitFor(() => expect(container.querySelector('.ant-dropdown-menu')).toHaveFocus());
+    });
+
+    it('should open dropdown on Space', async () => {
+      const { container } = render(
+        createTable({
+          columns: [
+            {
+              ...column,
+            },
+          ],
+        }),
+      );
+      const triggerElement = container.querySelector('.ant-dropdown-trigger')!;
+      act(() => {
+        fireEvent.keyDown(triggerElement, { key: ' ', code: 'Space' });
+      });
+      expect(container.querySelector('.ant-dropdown-open')).toBeTruthy();
+      await waitFor(() => expect(container.querySelector('.ant-dropdown-menu')).toHaveFocus());
+    });
+
+    it('should move focus back to trigger on Escape', async () => {
+      const { container } = render(
+        createTable({
+          columns: [
+            {
+              ...column,
+              filterSearch: true,
+            },
+          ],
+        }),
+      );
+      act(() => {
+        fireEvent.click(container.querySelector('.ant-dropdown-trigger')!);
+      });
+      expect(container.querySelector('.ant-dropdown-open')).toBeTruthy();
+      await waitFor(() => expect(container.querySelector('.ant-input')).toHaveFocus());
+      act(() => {
+        fireEvent.keyDown(document, { key: 'Escape', code: 'Escape' });
+      });
+      expect(container.querySelector('.ant-dropdown-open')).toBeFalsy();
+      setTimeout(() => {
+        expect(container.querySelector('.ant-dropdown-trigger')).toHaveFocus();
+      });
+    });
+
+    it('should not close filter dropdown on Tab', async () => {
+      const { container } = render(
+        createTable({
+          columns: [
+            {
+              ...column,
+              filterSearch: true,
+            },
+          ],
+        }),
+      );
+      act(() => {
+        fireEvent.click(container.querySelector('.ant-dropdown-trigger')!);
+      });
+      expect(container.querySelector('.ant-dropdown-open')).toBeTruthy();
+      await waitFor(() => expect(container.querySelector('.ant-input')).toHaveFocus());
+      act(() => {
+        fireEvent.keyDown(document, { key: 'Tab', code: 'Tab' });
+      });
+      expect(container.querySelector('.ant-dropdown-open')).toBeTruthy();
+      setTimeout(() => {
+        expect(container.querySelector('.ant-dropdown-menu')).toHaveFocus();
+      });
+    });
+
+    it('should close filter on click outside of the dropdown', () => {
+      const { container } = render(
+        createTable({
+          columns: [
+            {
+              ...column,
+              filterSearch: true,
+            },
+          ],
+        }),
+      );
+      act(() => {
+        fireEvent.click(container.querySelector('.ant-dropdown-trigger')!);
+      });
+      expect(container.querySelector('.ant-dropdown-open')).toBeTruthy();
+      act(() => {
+        fireEvent.click(document.body);
+      });
+      expect(container.querySelector('.ant-dropdown-open')).toBeFalsy();
+    });
+  });
 });

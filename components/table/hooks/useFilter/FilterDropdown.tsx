@@ -3,6 +3,7 @@ import FilterFilled from '@ant-design/icons/FilterFilled';
 import classNames from 'classnames';
 import type { FieldDataNode } from 'rc-tree';
 import isEqual from 'rc-util/lib/isEqual';
+import FocusLock from 'react-focus-lock';
 
 import type { FilterState } from '.';
 import useSyncState from '../../../_util/hooks/useSyncState';
@@ -172,6 +173,10 @@ function FilterDropdown<RecordType>(props: FilterDropdownProps<RecordType>) {
     onFilterDropdownVisibleChange,
   } = column;
   const [visible, setVisible] = React.useState(false);
+  const dropdownContentRef: React.RefObject<HTMLDivElement> = React.useRef(null);
+  const triggerBtnRef: React.RefObject<HTMLButtonElement> = React.useRef(null);
+
+  const CLOSE_OTHER_DROPDOWNS = 'closeOtherDropdowns';
 
   const filtered: boolean = !!(
     filterState &&
@@ -300,6 +305,60 @@ function FilterDropdown<RecordType>(props: FilterDropdownProps<RecordType>) {
     internalTriggerFilter(getFilteredKeysSync());
   };
 
+  const handleClose = () => {
+    if (!column.filterDropdown && filterOnClose) {
+      onConfirm();
+    } else {
+      triggerVisible(false);
+    }
+  };
+
+  const focusFirstFocusableElement = () => {
+    const focusableElements =
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+    const container = dropdownContentRef.current;
+
+    if (container) {
+      const firstFocusableElement = container.querySelector<HTMLElement>(focusableElements);
+
+      if (firstFocusableElement) {
+        setTimeout(() => {
+          firstFocusableElement.focus();
+        });
+      }
+    }
+  };
+
+  React.useEffect(() => {
+    if (visible) {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (!dropdownContentRef.current?.contains(event.target as Node)) {
+          handleClose();
+        }
+      };
+
+      const handleKeyDown = (event: KeyboardEvent) => {
+        switch (event.key) {
+          case 'Escape':
+            handleClose();
+            break;
+          default:
+            break;
+        }
+      };
+
+      document.addEventListener('click', handleClickOutside);
+      window.addEventListener('keydown', handleKeyDown);
+      document.addEventListener(CLOSE_OTHER_DROPDOWNS, handleClose);
+
+      return () => {
+        document.removeEventListener('click', handleClickOutside);
+        window.removeEventListener('keydown', handleKeyDown);
+        document.removeEventListener(CLOSE_OTHER_DROPDOWNS, handleClose);
+      };
+    }
+  }, [visible]);
+
   const onVisibleChange: DropdownProps['onOpenChange'] = (newVisible, info) => {
     if (info.source === 'trigger') {
       if (newVisible && propFilteredKeys !== undefined) {
@@ -307,10 +366,8 @@ function FilterDropdown<RecordType>(props: FilterDropdownProps<RecordType>) {
         setFilteredKeysSync(wrapStringListType(propFilteredKeys));
       }
 
-      triggerVisible(newVisible);
-
-      if (!newVisible && !column.filterDropdown && filterOnClose) {
-        onConfirm();
+      if (newVisible) {
+        triggerVisible(newVisible);
       }
     }
   };
@@ -510,9 +567,19 @@ function FilterDropdown<RecordType>(props: FilterDropdownProps<RecordType>) {
   }
 
   const menu = () => (
-    <FilterDropdownMenuWrapper className={`${prefixCls}-dropdown`}>
-      {dropdownContent}
-    </FilterDropdownMenuWrapper>
+    <FocusLock
+      onActivation={() => {
+        focusFirstFocusableElement();
+      }}
+      onDeactivation={() => {
+        triggerBtnRef.current?.focus();
+      }}
+      autoFocus={false}
+    >
+      <FilterDropdownMenuWrapper className={`${prefixCls}-dropdown`} ref={dropdownContentRef}>
+        {dropdownContent}
+      </FilterDropdownMenuWrapper>
+    </FocusLock>
   );
 
   let filterIcon: React.ReactNode;
@@ -537,15 +604,29 @@ function FilterDropdown<RecordType>(props: FilterDropdownProps<RecordType>) {
         getPopupContainer={getPopupContainer}
         placement={direction === 'rtl' ? 'bottomLeft' : 'bottomRight'}
         rootClassName={rootClassName}
+        destroyPopupOnHide
       >
         <span
           role="button"
-          tabIndex={-1}
+          ref={triggerBtnRef}
+          tabIndex={0}
           className={classNames(`${prefixCls}-trigger`, {
             active: filtered,
           })}
           onClick={(e) => {
             e.stopPropagation();
+            if (!visible) {
+              document.dispatchEvent(new CustomEvent(CLOSE_OTHER_DROPDOWNS));
+            } else {
+              handleClose();
+            }
+          }}
+          onKeyDown={(e) => {
+            const { key } = e;
+            if (key === 'Enter' || key === ' ') {
+              triggerVisible(true);
+              e.stopPropagation();
+            }
           }}
         >
           {filterIcon}
