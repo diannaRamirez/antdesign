@@ -73,6 +73,7 @@ const InternalMenu = forwardRef<RcMenuRef, InternalMenuProps>((props, ref) => {
     mode,
     selectable,
     onClick,
+    onKeyDown,
     overflowedIndicatorPopupClassName,
     ...restProps
   } = props;
@@ -106,6 +107,13 @@ const InternalMenu = forwardRef<RcMenuRef, InternalMenuProps>((props, ref) => {
     onClick?.(...args);
     overrideObj.onClick?.();
   });
+
+  const onItemKeyDown = useEvent<Required<MenuProps>['onKeyDown']>(
+    (event: React.KeyboardEvent<HTMLUListElement>) => {
+      onKeyDown?.(event);
+      overrideObj.onKeyDown?.(event);
+    },
+  );
 
   // ========================== Mode ===========================
   const mergedMode = overrideObj.mode || mode;
@@ -182,6 +190,7 @@ const InternalMenu = forwardRef<RcMenuRef, InternalMenuProps>((props, ref) => {
           mode={mergedMode}
           selectable={mergedSelectable}
           onClick={onItemClick}
+          onKeyDown={onItemKeyDown}
           {...passedProps}
           inlineCollapsed={mergedInlineCollapsed}
           style={{ ...menu?.style, ...style }}
