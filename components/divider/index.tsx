@@ -10,11 +10,12 @@ export interface DividerProps {
   type?: 'horizontal' | 'vertical';
   orientation?: 'left' | 'right' | 'center';
   orientationMargin?: string | number;
+  gutterMargin?: string | number;
   className?: string;
   rootClassName?: string;
   children?: React.ReactNode;
   dashed?: boolean;
-  variant?: 'dashed' | 'dotted' | 'solid'
+  variant?: 'dashed' | 'dotted' | 'solid';
   style?: React.CSSProperties;
   plain?: boolean;
 }
@@ -27,6 +28,7 @@ const Divider: React.FC<DividerProps> = (props) => {
     type = 'horizontal',
     orientation = 'center',
     orientationMargin,
+    gutterMargin,
     className,
     rootClassName,
     children,
@@ -43,6 +45,8 @@ const Divider: React.FC<DividerProps> = (props) => {
   const hasChildren = !!children;
   const hasCustomMarginLeft = orientation === 'left' && orientationMargin != null;
   const hasCustomMarginRight = orientation === 'right' && orientationMargin != null;
+  const hasCustomGutterMargin = gutterMargin != null;
+
   const classString = classNames(
     prefixCls,
     divider?.className,
@@ -73,6 +77,21 @@ const Divider: React.FC<DividerProps> = (props) => {
     return orientationMargin!;
   }, [orientationMargin]);
 
+  const memoizedGutterMargin = React.useMemo<string | number>(() => {
+    if (typeof gutterMargin === 'number') {
+      return `${gutterMargin}px`;
+    }
+    if (/^\d+$/.test(gutterMargin!)) {
+      return `${Number(gutterMargin)}px`;
+    }
+    return gutterMargin!;
+  }, [gutterMargin]);
+
+  const gutterStyle: React.CSSProperties = {
+    ...(hasCustomGutterMargin && type === 'vertical' && { marginInline: memoizedGutterMargin }),
+    ...(hasCustomGutterMargin && type === 'horizontal' && { margin: `${memoizedGutterMargin} 0` }),
+  };
+
   const innerStyle: React.CSSProperties = {
     ...(hasCustomMarginLeft && { marginLeft: memoizedOrientationMargin }),
     ...(hasCustomMarginRight && { marginRight: memoizedOrientationMargin }),
@@ -92,7 +111,7 @@ const Divider: React.FC<DividerProps> = (props) => {
   return wrapCSSVar(
     <div
       className={classString}
-      style={{ ...divider?.style, ...style }}
+      style={{ ...divider?.style, ...gutterStyle, ...style }}
       {...restProps}
       // biome-ignore lint/a11y/useAriaPropsForRole: divider do not need aria-value
       role="separator"
