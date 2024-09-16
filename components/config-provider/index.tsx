@@ -178,6 +178,7 @@ export interface ConfigProviderProps {
   popupMatchSelectWidth?: boolean;
   popupOverflow?: PopupOverflow;
   theme?: ThemeConfig;
+  themeOrigin?: ThemeConfig;
   warning?: WarningContextProps;
   alert?: AlertConfig;
   anchor?: ComponentStyleConfig;
@@ -416,7 +417,9 @@ const ProviderChildren: React.FC<ProviderChildrenProps> = (props) => {
 
   useStyle(iconPrefixCls, csp);
 
-  const mergedTheme = useTheme(theme, parentContext.theme, { prefixCls: getPrefixCls('') });
+  const mergedTheme = useTheme(parentContext.themeOrigin || theme, parentContext.theme, {
+    prefixCls: getPrefixCls(''),
+  });
 
   if (process.env.NODE_ENV !== 'production') {
     existThemeConfig = existThemeConfig || !!mergedTheme;
@@ -506,6 +509,7 @@ const ProviderChildren: React.FC<ProviderChildrenProps> = (props) => {
 
   const config: ConfigConsumerProps = {
     ...parentContext,
+    themeOrigin: theme?.nextThemeEnd ? parentContext.themeOrigin || parentContext.theme : undefined,
   };
 
   (Object.keys(baseConfig) as (keyof typeof baseConfig)[]).forEach((key) => {
@@ -632,7 +636,6 @@ const ProviderChildren: React.FC<ProviderChildrenProps> = (props) => {
     return {
       ...rest,
       theme: themeObj,
-
       token: mergedToken,
       components: parsedComponents,
       override: {
