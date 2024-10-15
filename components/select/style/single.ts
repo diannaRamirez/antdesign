@@ -6,16 +6,16 @@ import { mergeToken } from '../../theme/internal';
 import type { SelectToken } from './token';
 
 function genSizeStyle(token: SelectToken, suffix?: string): CSSObject {
-  const { componentCls, inputPaddingHorizontalBase, borderRadius, fontSizeIcon } = token;
+  const { componentCls, inputPaddingHorizontalBase, borderRadius, selectAffixPadding } = token;
 
   const selectHeightWithoutBorder = token
     .calc(token.controlHeight)
     .sub(token.calc(token.lineWidth).mul(2))
     .equal();
-
-  const singleInputPaddingHorizontal = token
-    .calc(inputPaddingHorizontalBase)
-    .add(fontSizeIcon)
+  const selectOffset = token
+    .calc(token.lineWidth)
+    .mul(2)
+    .sub(token.calc(token.controlHeight))
     .equal();
 
   const suffixCls = suffix ? `${componentCls}-${suffix}` : '';
@@ -31,26 +31,43 @@ function genSizeStyle(token: SelectToken, suffix?: string): CSSObject {
 
         display: 'flex',
         borderRadius,
+        alignSelf: 'center',
+        paddingBlock: 0,
+        paddingInlineStart: inputPaddingHorizontalBase,
+        paddingInlineEnd: token
+          .calc(inputPaddingHorizontalBase)
+          .add(token.showArrowPaddingInlineEnd)
+          .equal(),
+
+        [`${componentCls}-selection-wrap`]: {
+          display: 'block',
+          flex: '1 1 auto',
+          position: 'relative',
+        },
 
         [`${componentCls}-selection-search`]: {
-          position: 'absolute',
-          top: 0,
-          insetInlineStart: inputPaddingHorizontalBase,
-          insetInlineEnd: unit(singleInputPaddingHorizontal),
-          bottom: 0,
+          position: 'relative',
+          display: 'block',
+          height: selectHeightWithoutBorder,
 
           '&-input': {
+            position: 'absolute',
+            offset: 0,
+            display: 'block',
             width: '100%',
+            height: selectHeightWithoutBorder,
             WebkitAppearance: 'textfield',
           },
         },
 
         [`
           ${componentCls}-selection-item,
-          ${componentCls}-selection-placeholder
+          ${componentCls}-selection-placeholder,
+          ${componentCls}-prefix
         `]: {
+          display: 'block',
           padding: 0,
-          lineHeight: unit(selectHeightWithoutBorder),
+          lineHeight: selectHeightWithoutBorder,
           transition: `all ${token.motionDurationSlow}, visibility 0s`,
           alignSelf: 'center',
         },
@@ -58,6 +75,14 @@ function genSizeStyle(token: SelectToken, suffix?: string): CSSObject {
         [`${componentCls}-selection-placeholder`]: {
           transition: 'none',
           pointerEvents: 'none',
+        },
+
+        [`${componentCls}-selection-item`]: {
+          marginTop: selectOffset,
+        },
+
+        [`${componentCls}-prefix`]: {
+          marginInlineEnd: selectAffixPadding,
         },
 
         // For common baseline align
@@ -75,13 +100,6 @@ function genSizeStyle(token: SelectToken, suffix?: string): CSSObject {
         },
       },
 
-      [`
-        &${componentCls}-show-arrow ${componentCls}-selection-item,
-        &${componentCls}-show-arrow ${componentCls}-selection-placeholder
-      `]: {
-        paddingInlineEnd: token.showArrowPaddingInlineEnd,
-      },
-
       // Opacity selection if open
       [`&${componentCls}-open ${componentCls}-selection-item`]: {
         color: token.colorTextPlaceholder,
@@ -94,7 +112,6 @@ function genSizeStyle(token: SelectToken, suffix?: string): CSSObject {
         [`${componentCls}-selector`]: {
           width: '100%',
           height: '100%',
-          padding: `0 ${unit(inputPaddingHorizontalBase)}`,
 
           [`${componentCls}-selection-search-input`]: {
             height: selectHeightWithoutBorder,
@@ -118,11 +135,6 @@ function genSizeStyle(token: SelectToken, suffix?: string): CSSObject {
           },
 
           [`${componentCls}-selection-placeholder`]: {
-            position: 'absolute',
-            insetInlineStart: 0,
-            insetInlineEnd: 0,
-            padding: `0 ${unit(inputPaddingHorizontalBase)}`,
-
             '&:after': {
               display: 'none',
             },
